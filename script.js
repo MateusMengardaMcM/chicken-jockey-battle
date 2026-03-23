@@ -5,7 +5,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: {y:1},
+            gravity: {y:150},
             debug: false
         }
     },
@@ -36,11 +36,11 @@ function create() {
 
     player = this.physics.add.sprite(100,360,'player');
     player.setScale(0.075);
-    this.physics.add.collider(this.player,this.ground);
+    this.physics.add.collider(player,this.ground);
 
     enemy = this.physics.add.sprite(700,400,'enemy');
     enemy.setScale(0.5);
-
+    this.physics.add.collider(enemy,this.ground);
     cursors = this.input.keyboard.createCursorKeys();
 }
 
@@ -53,7 +53,5 @@ function update() {
 
     if (cursors.up.isDown) {
         player.y -= 3;
-    } else if (cursors.down.isDown) {
-        player.y += 3;
     }
 }
