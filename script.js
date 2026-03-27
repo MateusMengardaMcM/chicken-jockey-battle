@@ -49,6 +49,7 @@ function create() {
     shootEnemy.call(this);
 
     cursors = this.input.keyboard.createCursorKeys();
+    shootPlayer.call(this);
 }
 
 function update() {
@@ -74,4 +75,14 @@ function shootEnemy() {
         callback: shootEnemy,
         callbackScope: this,
     });
+}
+
+function shootPlayer() {
+    if (cursors.right.isDown) {
+        let bullet = this.bullets.create(enemy.x, enemy.y, "playerShoot");
+        bullet.setScale(0.15);
+        bullet.setVelocityX(200);
+        bullet.body.allowGravity = false;
+        let delay = 2000;
+    }
 }
