@@ -46,12 +46,12 @@ function create() {
 
 function update() {
     if (cursors.left.isDown) {
-        player.x -= 3;
+        player.x -= 4;
     } else if (cursors.right.isDown) {
-        player.x += 3;
+        player.x += 4;
     }
 
     if (cursors.up.isDown) {
-        player.y -= 3;
+        player.y -= 4;
     }
 }
