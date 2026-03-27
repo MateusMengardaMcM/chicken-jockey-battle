@@ -5,7 +5,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: {y:150},
+            gravity: {y:600},
             debug: false
         }
     },
@@ -24,7 +24,10 @@ let cursors;
 
 function preload() {
     this.load.image('player','player.png');
+    this.load.image('playerAttack','playerAttack.png');
+    this.load.image('playerShoot','playerShoot.png');
     this.load.image('enemy','enemy.png');
+    this.load.image('enemyShoot','enemyShoot.png');
     this.load.image('bg','background.png');
 }
 
@@ -41,17 +44,34 @@ function create() {
     enemy = this.physics.add.sprite(700,400,'enemy');
     enemy.setScale(0.5);
     this.physics.add.collider(enemy,this.ground);
+
+    this.bullets = this.physics.add.group();
+    shootEnemy.call(this);
+
     cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
-    if (cursors.left.isDown) {
-        player.x -= 4;
-    } else if (cursors.right.isDown) {
-        player.x += 4;
+    if (cursors.up.isDown && player.body.touching.down) {
+        player.setVelocityY(-500);
     }
+    if (player.body.velocity.y > 0) {
+        player.setGravityY(1000);
+    }
+    else {
+        player.setGravityY(0);
+    }
+}
 
-    if (cursors.up.isDown) {
-        player.y -= 4;
-    }
+function shootEnemy() {
+    let bullet = this.bullets.create(enemy.x, enemy.y, "enemyShoot");
+    bullet.setScale(0.15);
+    bullet.setVelocityX(-200);
+    bullet.body.allowGravity = false;
+    let delay = Phaser.Math.Between(750,3000);
+    this.time.addEvent({
+        delay: delay,
+        callback: shootEnemy,
+        callbackScope: this,
+    });
 }
