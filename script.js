@@ -21,11 +21,11 @@ const game = new Phaser.Game(config);
 let player;
 let enemy;
 let cursors;
+let score = 0;
+let gameover = false;
 
 function preload() {
     this.load.image('player','player.png');
-    this.load.image('playerAttack','playerAttack.png');
-    this.load.image('playerShoot','playerShoot.png');
     this.load.image('enemy','enemy.png');
     this.load.image('enemyShoot','enemyShoot.png');
     this.load.image('bg','background.png');
@@ -38,7 +38,7 @@ function create() {
     this.ground.setVisible(false);
 
     player = this.physics.add.sprite(100,360,'player');
-    player.setScale(0.075);
+    player.setScale(0.25);
     this.physics.add.collider(player,this.ground);
 
     enemy = this.physics.add.sprite(700,400,'enemy');
@@ -49,13 +49,31 @@ function create() {
     shootEnemy.call(this);
 
     cursors = this.input.keyboard.createCursorKeys();
-    shootPlayer.call(this);
+
+    this.input.on('pointerdown', function() {
+        if (player.body.touching.down) {
+            player.setVelocityY(-500);
+        }
+    },this)
+
+    this.scoreText = this.add.text(20,20,"score: 0",{
+        fontSize: "24px",
+        fill: "#fff"
+    })
+
+    this.physics.add.overlap(player,this.bullets,hitPlayer,null,this);
+
+    this.scoreTimer = this.time.addEvent({
+        delay: 125,
+        loop: true,
+        callback: () => {
+            score++;
+            this.scoreText.setText("score: " + score);
+        }
+    })
 }
 
 function update() {
-    if (cursors.up.isDown && player.body.touching.down) {
-        player.setVelocityY(-500);
-    }
     if (player.body.velocity.y > 0) {
         player.setGravityY(1000);
     }
@@ -66,10 +84,10 @@ function update() {
 
 function shootEnemy() {
     let bullet = this.bullets.create(enemy.x, enemy.y, "enemyShoot");
-    bullet.setScale(0.15);
+    bullet.setScale(0.16);
     bullet.setVelocityX(-200);
     bullet.body.allowGravity = false;
-    let delay = Phaser.Math.Between(750,3000);
+    let delay = Phaser.Math.Between(1500,2250);
     this.time.addEvent({
         delay: delay,
         callback: shootEnemy,
@@ -77,12 +95,16 @@ function shootEnemy() {
     });
 }
 
-function shootPlayer() {
-    if (cursors.right.isDown) {
-        let bullet = this.bullets.create(enemy.x, enemy.y, "playerShoot");
-        bullet.setScale(0.15);
-        bullet.setVelocityX(200);
-        bullet.body.allowGravity = false;
-        let delay = 2000;
-    }
+function hitPlayer(player,bullet) {
+    gameover = true;
+    bullet.destroy();
+    player.setTint(0xff0000);
+    player.setVelocity(0,0);
+    player.body.enable = false;
+    this.bullets.clear(true,true);
+    this.add.text(100,100,"GAME OVER!\nLa-la-la-lava,ch-ch-ch-chicken\nSteve's Lava Chicken,yeah,\nit's tasty as hell!",{
+        fontSize: "32px",
+        fill: "#ff0000",
+        fontStyle: "bold"
+    })
 }
