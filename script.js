@@ -29,6 +29,7 @@ function preload() {
     this.load.image('enemy','enemy.png');
     this.load.image('enemyShoot','enemyShoot.png');
     this.load.image('bg','background.png');
+    this.load.audio('gameoverAudio','gameover.mp3');
 }
 
 function create() {
@@ -48,8 +49,6 @@ function create() {
     this.bullets = this.physics.add.group();
     shootEnemy.call(this);
 
-    cursors = this.input.keyboard.createCursorKeys();
-
     this.input.on('pointerdown', function() {
         if (player.body.touching.down) {
             player.setVelocityY(-500);
@@ -61,22 +60,23 @@ function create() {
         fill: "#fff"
     })
 
-    this.physics.add.overlap(player,this.bullets,hitPlayer,null,this);
-
-    if (gameover == false) {
-        this.scoreTimer = this.time.addEvent({
+    this.scoreTimer = this.time.addEvent({
             delay: 125,
             loop: true,
             callback: () => {
-                score++;
-                this.scoreText.setText("score: " + score);
-            }
-        })
-    }    
-    else {}
+                if (!gameover) {
+                    score++;
+                    this.scoreText.setText("score: " + score);
+                }
+            }   
+    })
+
+    this.gameoverAudio = this.sound.add("gameoverAudio");
+    this.physics.add.overlap(player,this.bullets,hitPlayer,null,this);
 }
 
 function update() {
+    if (gameover) return;
     if (player.body.velocity.y > 0) {
         player.setGravityY(1000);
     }
@@ -86,7 +86,7 @@ function update() {
 }
 
 function shootEnemy() {
-    if (gameover) return false;
+    if (gameover) return;
 
     let bullet = this.bullets.create(enemy.x, enemy.y, "enemyShoot");
     bullet.setScale(0.16);
@@ -105,6 +105,8 @@ function shootEnemy() {
 function hitPlayer(player,bullet) {
     gameover = true;
     bullet.destroy();
+    this.physics.pause();
+    this.gameoverAudio.play();
     player.setTint(0xff0000);
     player.setVelocity(0,0);
     player.body.enable = false;
