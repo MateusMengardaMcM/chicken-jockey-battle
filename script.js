@@ -63,14 +63,17 @@ function create() {
 
     this.physics.add.overlap(player,this.bullets,hitPlayer,null,this);
 
-    this.scoreTimer = this.time.addEvent({
-        delay: 125,
-        loop: true,
-        callback: () => {
-            score++;
-            this.scoreText.setText("score: " + score);
-        }
-    })
+    if (gameover == false) {
+        this.scoreTimer = this.time.addEvent({
+            delay: 125,
+            loop: true,
+            callback: () => {
+                score++;
+                this.scoreText.setText("score: " + score);
+            }
+        })
+    }    
+    else {}
 }
 
 function update() {
@@ -83,11 +86,15 @@ function update() {
 }
 
 function shootEnemy() {
+    if (gameover) return false;
+
     let bullet = this.bullets.create(enemy.x, enemy.y, "enemyShoot");
     bullet.setScale(0.16);
     bullet.setVelocityX(-200);
     bullet.body.allowGravity = false;
+
     let delay = Phaser.Math.Between(1500,2250);
+
     this.time.addEvent({
         delay: delay,
         callback: shootEnemy,
